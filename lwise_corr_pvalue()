@@ -1,0 +1,23 @@
+import pandas as pd
+import scipy.stats as stats
+
+def lwise_corr_pvalues(df):
+    df = df.dropna(how= 'any')._get_numeric_data()
+    dfcols = pd.DataFrame(columns=df.columns)
+    rvalues = dfcols.transpose().join(dfcols, how='outer')
+    pvalues = dfcols.transpose().join(dfcols, how='outer')
+
+    for r in df.columns:
+        for c in df.columns:
+            rvalues[r][c] = round(stats.pearsonr(df[r], df[c])[0], 4)
+       
+    for r in df.columns:
+        for c in df.columns:
+            pvalues[r][c] = format(stats.pearsonr(df[r], df[c])[1], '.4f')
+            
+    print("Correlation test conducted using list-wise deletion")
+    print("Total observations used: ",len(df))
+    print("\n")
+    print("Pearson Correlation Values", "\n", rvalues)
+    print("\n")
+    print("Significant Levels", "\n", pvalues)
