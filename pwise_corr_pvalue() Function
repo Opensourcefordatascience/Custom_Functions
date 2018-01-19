@@ -1,0 +1,28 @@
+import pandas as pd
+import scipy.stats as stats
+import itertools
+
+def pwise_corr_pvalues(df):   
+    correlations = {}
+    pvalues = {}
+    length = {}
+    columns = df.columns.tolist()
+    
+    for col1, col2 in itertools.combinations(columns, 2):
+        sub = df[[col1,col2]].dropna(how= "any")
+        correlations[col1 + " " + "&" + " " + col2] = format(stats.pearsonr(sub.loc[:, col1], sub.loc[:, col2])[0], '.4f')
+        pvalues[col1 + " " + "&" + " " + col2] = format(stats.pearsonr(sub.loc[:, col1], sub.loc[:, col2])[1], '.4f')
+        length[col1 + " " + "&" + " " + col2] = len(df[[col1,col2]].dropna(how= "any"))
+        
+    corrs = pd.DataFrame.from_dict(correlations, orient= "index")
+    corrs.columns = ["r value"]                
+    
+    pvals = pd.DataFrame.from_dict(pvalues, orient= "index")
+    pvals.columns = ["p-value"]
+        
+    l = pd.DataFrame.from_dict(length, orient= "index")
+    l.columns = ["N"]
+    
+    results = corrs.join([pvals,l])
+    
+    print(results)
